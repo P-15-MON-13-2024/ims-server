@@ -1,5 +1,5 @@
 # IMS-Server
-The backend codebase for the **RFID-based Inventory Management System**. 
+The backend codebase for the **RFID-based Wireless Inventory Management System**. 
 
 This project was developed as a part of the Electronic Design Lab (EE344) course of Electrical Engineering Department, IIT-Bombay by group **MON-13**. 
 
