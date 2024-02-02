@@ -2,7 +2,7 @@
 The backend codebase for the **RFID-based Wireless Inventory Management System**. 
 
 This project was developed as a part of the Electronic Design Lab (EE344) course of Electrical Engineering Department, IIT-Bombay by group **MON-13**. 
-# Installation instruction
+## Installation instruction
 ### 1. Setup virtual env
 **WINDOWS**
 ```bat
@@ -43,8 +43,7 @@ To make the `.sh` scripts executatable
 chmod +x <filename.sh>
 ```
 
-
-### Group Members
+## Group Members
 1. Abhijat Bharadwaj (@Keymii)
 1. Ananya Chinmaya (@ananyachinmaya)
 1. Animesh Kumar (@KeeengPin)
