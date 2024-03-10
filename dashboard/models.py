@@ -11,9 +11,9 @@ class Sapien(models.Model):
         return self.name
 
 class Bucket(models.Model):
-    bucket_name = models.CharField(max_length=100)
-    total_count = models.IntegerField()
-    issued_count = models.IntegerField()
+    bucket_name = models.CharField(max_length=100, unique=True)
+    total_count = models.IntegerField(default=0)
+    issued_count = models.IntegerField(defalt=0)
 
     def __str__(self):
         return self.bucket_name
@@ -26,6 +26,12 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Check if the instance is being created for the first time
+            self.category.total_count += 1
+            self.category.save()
+        super(Item, self).save(*args, **kwargs)
 
 
 class IssueRecord(models.Model):
