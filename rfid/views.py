@@ -35,6 +35,7 @@ def mirror(request):
     else: 
         print("something's wrong")
     return JsonResponse({"message":"f"})
+
 @api_view(['GET'])
 def get_access_token(request, scanner_uid):
     try:
