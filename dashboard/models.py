@@ -13,7 +13,7 @@ class Sapien(models.Model):
 class Bucket(models.Model):
     bucket_name = models.CharField(max_length=100, unique=True)
     total_count = models.IntegerField(default=0)
-    issued_count = models.IntegerField(defalt=0)
+    issued_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.bucket_name
