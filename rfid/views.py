@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .models import AccessToken
 from .serializers import AccessTokenSerializer
+from .utils import token_required
 
 students = {
     '6AD2B612' : {'name':'Abhijat Bharadwaj', 'roll':'210020002'},
