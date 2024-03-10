@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-
+from .utils import token_required
 students = {
     '6AD2B612' : {'name':'Abhijat Bharadwaj', 'roll':'210020002'},
     '2A94B212' : {'name':'Animesh Kumar', 'roll':'21D070012'}
@@ -15,6 +15,7 @@ def hello(request):
     return JsonResponse({"message":"Hello from Django!"})
 
 @api_view(['GET'])
+@token_required
 def mirror(request):
     serial_id = request.query_params.get('serial')
     if serial_id is not None:
