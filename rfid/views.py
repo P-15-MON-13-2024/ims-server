@@ -19,6 +19,7 @@ def hello(request):
     return JsonResponse({"message":"Hello from Django!"})
 
 @api_view(['GET'])
+@token_required
 def mirror(request):
     serial_id = request.query_params.get('serial')
     if serial_id is not None:
