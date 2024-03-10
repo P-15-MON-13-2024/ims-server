@@ -1,9 +1,8 @@
 from django.db import models
-from django.utils import timezone
 from datetime import timedelta
 
 # Create your models here.
-class User(models.Model):
+class Sapiens(models.Model):
     serial_id = models.CharField(max_length=10, unique=True)
     insti_id = models.CharField(max_length=50)
     name = models.CharField(max_length=300)
@@ -31,7 +30,7 @@ class Item(models.Model):
 
 class IssueRecord(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Sapiens, on_delete=models.CASCADE)
     issue_time = models.DateTimeField(auto_now=False, auto_now_add=True)
     expected_return = models.DateTimeField(auto_now=False, auto_now_add=False)
     return_time = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
