@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import AccessToken
 from .serializers import AccessTokenSerializer
 from .utils import token_required
+from dashboard.serializers import SapienSerializer, ItemSerializer
+from dashboard.models import Sapien, Bucket, Item, IssueRecord
 
 students = {
     '6AD2B612' : {'name':'Abhijat Bharadwaj', 'roll':'210020002'},
@@ -44,3 +46,23 @@ def get_access_token(request, scanner_uid):
         return Response(serializer.data)
     except AccessToken.DoesNotExist:
         return Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])   
+def get_sapien(request):
+    serial = request.query_params.get('serial_id')
+    sapien = Sapien.objects.filter(serial_id=serial).first()
+    if sapien:
+        serializer = SapienSerializer(sapien)
+        return JsonResponse(serializer.data)
+    else:
+        return JsonResponse({"error": "Sapien not found"}, status=404)
+
+@api_view(['GET'])
+def get_item(request):
+    serial = request.query_params.get('serial_id')
+    item = Item.objects.filter(serial_id=serial).first()
+    if item:
+        serializer = ItemSerializer(item)
+        return JsonResponse(serializer.data)
+    else:
+        return JsonResponse({"error": "Item not found"}, status=404)
