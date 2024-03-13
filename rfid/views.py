@@ -43,13 +43,13 @@ def get_access_token(request, scanner_uid):
     try:
         access_token_obj = AccessToken.objects.get(scanner_uid=scanner_uid)
         serializer = AccessTokenSerializer(access_token_obj)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data)
     except AccessToken.DoesNotExist:
-        return Response("Unauthorized", status=status.HTTP_401_UNAUTHORIZED)
+        return JsonResponse({"error":"Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])   
 def get_sapien(request):
-    serial = request.query_params.get('serial_id')
+    serial = request.query_params.get('serial')
     sapien = Sapien.objects.filter(serial_id=serial).first()
     if sapien:
         serializer = SapienSerializer(sapien)
@@ -59,7 +59,7 @@ def get_sapien(request):
 
 @api_view(['GET'])
 def get_item(request):
-    serial = request.query_params.get('serial_id')
+    serial = request.query_params.get('serial')
     item = Item.objects.filter(serial_id=serial).first()
     if item:
         serializer = ItemSerializer(item)
