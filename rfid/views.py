@@ -91,12 +91,12 @@ def add_issue_record(request):
                     item.category.issued_count += 1
                     item.category.save()
 
-                    return Response("Issue record added successfully", status=status.HTTP_201_CREATED)
+                    return JsonResponse({"message":"Issue record added successfully"}, status=status.HTTP_201_CREATED)
                 else:
-                    return Response("Item is not available for issue", status=status.HTTP_400_BAD_REQUEST)
+                    return JsonResponse({"message":"Item is not available for issue"}, status=status.HTTP_400_BAD_REQUEST)
             except Item.DoesNotExist:
-                return Response("Item not found", status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({"message":"Item not found"}, status=status.HTTP_404_NOT_FOUND)
             except Sapien.DoesNotExist:
-                return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
