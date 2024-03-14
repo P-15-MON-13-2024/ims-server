@@ -17,10 +17,6 @@ items={
     '4BE6064C':'Wire Stripper'
 }
 
-
-def hello(request):
-    return JsonResponse({"message":"Hello from Django!"})
-
 @api_view(['GET'])
 @token_required
 def mirror(request):
