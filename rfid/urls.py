@@ -8,6 +8,7 @@ urlpatterns = [
     path('get-sapien/', get_sapien, name='get_sapien'),
     path('get-item/',get_item, name='get_item'),
     path('add-issue-record/', add_issue_record, name='issue-record'),
+    path('return-item/', return_item, name='return-item'),
 
 
 ]

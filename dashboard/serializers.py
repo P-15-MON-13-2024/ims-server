@@ -14,3 +14,7 @@ class ItemSerializer(serializers.ModelSerializer):
 class AddIssueRecordSerializer(serializers.Serializer):
     item_id = serializers.CharField()
     sapien_id = serializers.CharField()
+
+class ReturnItemSerializer(serializers.Serializer):
+    item_id = serializers.CharField()
+    sapien_id = serializers.CharField()

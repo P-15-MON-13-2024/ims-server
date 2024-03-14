@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from .models import AccessToken
 from .serializers import AccessTokenSerializer
 from .utils import token_required
-from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, ItemSerializer
+from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, ItemSerializer,ReturnItemSerializer
 from dashboard.models import Sapien, Bucket, Item, IssueRecord
+from django.utils import timezone
 
 students = {
     '6AD2B612' : {'name':'Abhijat Bharadwaj', 'roll':'210020002'},
@@ -87,12 +88,46 @@ def add_issue_record(request):
                     item.category.issued_count += 1
                     item.category.save()
 
-                    return JsonResponse({"message":"Issue record added successfully"}, status=status.HTTP_201_CREATED)
+                    return Response({"message":"Issue record added successfully"}, status=status.HTTP_201_CREATED)
                 else:
-                    return JsonResponse({"message":"Item is not available for issue"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"message":"Item is not available for issue"}, status=status.HTTP_400_BAD_REQUEST)
             except Item.DoesNotExist:
-                return JsonResponse({"message":"Item not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"message":"Item not found"}, status=status.HTTP_404_NOT_FOUND)
             except Sapien.DoesNotExist:
-                return JsonResponse({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+@api_view(['POST'])
+def return_item(request):
+    if request.method == 'POST':
+        serializer = ReturnItemSerializer(data=request.data)
+        if serializer.is_valid():
+            item_id = serializer.validated_data['item_id']
+            sapien_id = serializer.validated_data['sapien_id']
+            
+            try:
+                issue_record = IssueRecord.objects.get(item__serial_id=item_id, 
+                                                       user__serial_id=sapien_id, 
+                                                       is_returned=False)
+                
+                # Mark item as returned
+                issue_record.return_time = timezone.now()
+                issue_record.is_returned = True
+                issue_record.save()
+
+                # Update item availability
+                item = issue_record.item
+                item.is_available = True
+                item.save()
+
+                # Update issued count of the corresponding bucket model
+                item.category.issued_count -= 1
+                item.category.save()
+
+                return Response({"message": "Item returned successfully"}, status=status.HTTP_200_OK)
+            except IssueRecord.DoesNotExist:
+                return Response({"message": "Issue record not found or item already returned"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
