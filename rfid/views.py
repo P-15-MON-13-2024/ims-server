@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .models import AccessToken
 from .serializers import AccessTokenSerializer
 from .utils import token_required
-from dashboard.serializers import SapienSerializer, ItemSerializer
+from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, ItemSerializer
 from dashboard.models import Sapien, Bucket, Item, IssueRecord
 
 students = {
@@ -66,3 +66,37 @@ def get_item(request):
         return JsonResponse(serializer.data)
     else:
         return JsonResponse({"error": "Item not found"}, status=404)
+    
+@api_view(['POST'])
+def add_issue_record(request):
+    if request.method == 'POST':
+        serializer = AddIssueRecordSerializer(data=request.data)
+        if serializer.is_valid():
+            item_id = serializer.validated_data['item_id']
+            sapien_id = serializer.validated_data['sapien_id']
+            
+            try:
+                item = Item.objects.get(serial_id=item_id)
+                user = Sapien.objects.get(serial_id=sapien_id)
+                
+                if item.is_available:
+                    new_issue_record = IssueRecord(item=item, user=user)
+                    new_issue_record.save()
+
+                    # Update item availability
+                    item.is_available = False
+                    item.save()
+
+                    # Update issued count of the corresponding bucket model
+                    item.category.issued_count += 1
+                    item.category.save()
+
+                    return Response("Issue record added successfully", status=status.HTTP_201_CREATED)
+                else:
+                    return Response("Item is not available for issue", status=status.HTTP_400_BAD_REQUEST)
+            except Item.DoesNotExist:
+                return Response("Item not found", status=status.HTTP_404_NOT_FOUND)
+            except Sapien.DoesNotExist:
+                return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

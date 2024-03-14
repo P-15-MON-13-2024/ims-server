@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # Create your models here.
 class Sapien(models.Model):
@@ -43,10 +43,11 @@ class IssueRecord(models.Model):
     is_returned = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"IssueRecord - Item: {self.item}, User: {self.user}, Issue Time: {self.issue_time}"
+        return f"Item: {self.item}, User: {self.user}, Issue Time: {self.issue_time}"
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if the instance is being created for the first time
-            self.expected_return = self.issue_time + timedelta(days=7)
+            self.issue_time = datetime.now()
+            self.expected_return = datetime.now() + timedelta(days=7)
         super(IssueRecord, self).save(*args, **kwargs)
 
