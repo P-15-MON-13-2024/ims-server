@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Sapien, Item, IssueRecord
+from .models import Sapien, Item, IssueRecord, Bucket
 
 class SapienSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,11 @@ class AddIssueRecordSerializer(serializers.Serializer):
 class ReturnItemSerializer(serializers.Serializer):
     item_id = serializers.CharField()
     sapien_id = serializers.CharField()
+
+class BucketSerializer(serializers.ModelSerializer):
+    total_count = serializers.IntegerField()
+    issued_count = serializers.IntegerField()
+
+    class Meta:
+        model = Bucket
+        fields = ['bucket_name', 'total_count', 'issued_count']
