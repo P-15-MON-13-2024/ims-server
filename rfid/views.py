@@ -9,31 +9,6 @@ from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, It
 from dashboard.models import Sapien, Bucket, Item, IssueRecord
 from django.utils import timezone
 
-students = {
-    '6AD2B612' : {'name':'Abhijat Bharadwaj', 'roll':'210020002'},
-    '2A94B212' : {'name':'Animesh Kumar', 'roll':'21D070012'}
-}
-
-items={
-    '4BE6064C':'Wire Stripper'
-}
-
-@api_view(['GET'])
-@token_required
-def mirror(request):
-    serial_id = request.query_params.get('serial')
-    if serial_id is not None:
-        print(serial_id)
-        if serial_id in students:
-            print(students[serial_id]['name'])
-            print(students[serial_id]['roll'])
-        elif serial_id in items:
-            print(items[serial_id])
-        print()
-        return JsonResponse({"message":serial_id})
-    else: 
-        print("something's wrong")
-    return JsonResponse({"message":"f"})
 
 @api_view(['GET'])
 def get_access_token(request, scanner_uid):
@@ -44,7 +19,8 @@ def get_access_token(request, scanner_uid):
     except AccessToken.DoesNotExist:
         return JsonResponse({"error":"Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['GET'])   
+@api_view(['GET'])  
+@token_required 
 def get_sapien(request):
     serial = request.query_params.get('serial')
     sapien = Sapien.objects.filter(serial_id=serial).first()
@@ -55,6 +31,7 @@ def get_sapien(request):
         return JsonResponse({"error": "Sapien not found"}, status=404)
 
 @api_view(['GET'])
+@token_required 
 def get_item(request):
     serial = request.query_params.get('serial')
     item = Item.objects.filter(serial_id=serial).first()
@@ -65,6 +42,7 @@ def get_item(request):
         return JsonResponse({"error": "Item not found"}, status=404)
     
 @api_view(['POST'])
+@token_required 
 def add_issue_record(request):
     if request.method == 'POST':
         serializer = AddIssueRecordSerializer(data=request.data)
@@ -100,6 +78,7 @@ def add_issue_record(request):
         
 
 @api_view(['POST'])
+@token_required 
 def return_item(request):
     if request.method == 'POST':
         serializer = ReturnItemSerializer(data=request.data)
