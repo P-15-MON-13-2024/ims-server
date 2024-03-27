@@ -41,7 +41,7 @@ class IssueRecord(models.Model):
     expected_return = models.DateTimeField(auto_now=False, auto_now_add=False)
     return_time = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     is_returned = models.BooleanField(default=False)
-
+    
     def __str__(self):
         return f"Item: {self.item}, User: {self.user}, Issue Time: {self.issue_time}"
 

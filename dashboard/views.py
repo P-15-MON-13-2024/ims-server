@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Bucket, Sapien, Item, IssueRecord
-from .serializers import BucketSerializer, SapienSerializer
+from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 
@@ -61,43 +61,50 @@ def list_items(request):
         
         return Response(items_data, status=status.HTTP_200_OK)
 
+
+
 @api_view(['GET'])
-def list_items_in_bucket(request, bucket_name):
-    if request.method == 'GET':
-        items_data = []
-        try:
-            # Retrieve the bucket by name
-            bucket = Bucket.objects.get(bucket_name=bucket_name)
-            
-            # Retrieve all items in the specified bucket
-            items = Item.objects.filter(category=bucket)
-            for item in items:
-                # Get the latest issue record for the item
-                latest_issue_record = IssueRecord.objects.filter(item=item, is_returned=False).order_by('-issue_time').first()
-                
-                # Check if the item is available
-                if latest_issue_record is None or latest_issue_record.is_returned:
-                    item_data = {
-                        'item_id': item.id,
-                        'serial_id': item.serial_id,
-                        'name': item.name,
-                        'availability': 'Available',
-                        'issued_to': None
-                    }
-                else:
-                    issued_to = {
-                        'name': latest_issue_record.user.name,
-                        'serial_id': latest_issue_record.user.serial_id
-                    }
-                    item_data = {
-                        'item_id': item.id,
-                        'serial_id': item.serial_id,
-                        'name': item.name,
-                        'availability': 'Not Available',
-                        'issued_to': issued_to
-                    }
-                items_data.append(item_data)
-            
-            return Response(items_data, status=status.HTTP_200_OK)
-        except Bucket.DoesNotExist:
-            return Response({'error': 'Bucket not found'}, status=status.HTTP_404_NOT_FOUND)
+def list_items_in_bucket(request, bucket_id):
+    try:
+        bucket = Bucket.objects.get(id=bucket_id)
+    except Bucket.DoesNotExist:
+        raise NotFound(detail="Bucket not found", code=status.HTTP_404_NOT_FOUND)
+
+    items = Item.objects.filter(category=bucket)  # Ensure correct filtering
+
+    # Pass both bucket and items queryset to the serializer
+    serializer = ItemSerializer(items, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def item_activities(request, serial_id):
+    try:
+        item = Item.objects.get(serial_id=serial_id)
+    except Item.DoesNotExist:
+        return Response({"error": "Item not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Query IssueRecord model to find all records related to the item
+    issue_records = IssueRecord.objects.filter(item=item)
+
+    # Serialize the issue records
+    serializer = ItemActivitySerializer(issue_records, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def sapien_activities(request, serial_id):
+    try:
+        sapien = Sapien.objects.get(serial_id=serial_id)
+    except Sapien.DoesNotExist:
+        return Response({"error": "Sapien not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Query IssueRecord model to find all records related to the Sapien
+    issue_records = IssueRecord.objects.filter(user=sapien).order_by('-issue_time')
+
+    # Serialize the issue records
+    serializer = SapienActivitySerializer(issue_records, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+

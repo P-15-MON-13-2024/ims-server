@@ -26,3 +26,22 @@ class BucketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bucket
         fields = ['bucket_name', 'total_count', 'issued_count', 'id']
+
+class BucketItemsSerializer(serializers.ModelSerializer):
+    items = ItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Bucket
+        fields = ['bucket_name', 'items']
+
+class ItemActivitySerializer(serializers.ModelSerializer):
+    user = SapienSerializer() 
+    class Meta:
+        model = IssueRecord
+        fields = [ 'item', 'user', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+
+class SapienActivitySerializer(serializers.ModelSerializer):
+    item = serializers.CharField(source='item.name', read_only=True)
+    class Meta:
+        model = IssueRecord
+        fields = [ 'item', 'user', 'issue_time', 'expected_return', 'return_time', 'is_returned']
