@@ -2,11 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import threading
+import asyncio
+
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
+    # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -19,4 +22,12 @@ def main():
 
 
 if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
+    from imsserver.utils import run_telegram_bot
+
+    thread = threading.Thread(target= run_telegram_bot)
+    thread.start()
     main()
+    thread.join()
+
+
