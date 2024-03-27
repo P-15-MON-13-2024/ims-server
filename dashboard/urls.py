@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import list_buckets,list_sapiens, list_items,list_items_in_bucket,item_activities, sapien_activities
+from .views import list_buckets,list_sapiens, list_items,get_bucket_items,item_activities, sapien_activities
 
 urlpatterns = [
     path('get-buckets/', list_buckets, name='list_buckets'),
     path('get-sapiens/', list_sapiens, name='list_sapiens'),
     path('get-items/', list_items, name='list_items'),
-    path('list_items_in_bucket/<int:bucket_id>/',list_items_in_bucket, name='list_items_in_bucket'),
-    path('item_activities/<str:serial_id>/', item_activities, name='item_activities'),
-    path('sapien_activities/<str:serial_id>/', sapien_activities, name='sapien_activities'),
+    path('get-bucket-items/<int:bucket_id>/',get_bucket_items, name='get_bucket_items'),
+    path('item-activities/<str:serial_id>/', item_activities, name='item_activities'),
+    path('sapien-activities/<str:serial_id>/', sapien_activities, name='sapien_activities'),
 ]

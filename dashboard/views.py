@@ -64,7 +64,7 @@ def list_items(request):
 
 
 @api_view(['GET'])
-def list_items_in_bucket(request, bucket_id):
+def get_bucket_items(request, bucket_id):
     try:
         bucket = Bucket.objects.get(id=bucket_id)
     except Bucket.DoesNotExist:
