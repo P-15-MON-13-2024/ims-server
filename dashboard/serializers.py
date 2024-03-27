@@ -35,13 +35,32 @@ class BucketItemsSerializer(serializers.ModelSerializer):
         fields = ['bucket_name', 'items']
 
 class ItemActivitySerializer(serializers.ModelSerializer):
-    user = SapienSerializer() 
+    item_serial_id = serializers.CharField(source='item.serial_id', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    user_details = SapienSerializer(source='user', read_only=True)
+
     class Meta:
         model = IssueRecord
-        fields = [ 'item', 'user', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+        fields = ['item', 'item_serial_id', 'item_name', 'user', 'user_details', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+
 
 class SapienActivitySerializer(serializers.ModelSerializer):
-    item = serializers.CharField(source='item.name', read_only=True)
+    item_serial_id = serializers.CharField(source='item.serial_id', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    user_name = serializers.CharField(source='user.name', read_only=True)
+
     class Meta:
         model = IssueRecord
-        fields = [ 'item', 'user', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+        fields = ['user', 'user_name', 'item_serial_id', 'item_name', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+
+
+
+class IssuedItemSerializer(serializers.ModelSerializer):
+    item_serial_id = serializers.CharField(source='item.serial_id', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    user_serial_id = serializers.CharField(source='user.serial_id', read_only=True)
+    user_name = serializers.CharField(source='user.name', read_only=True)
+
+    class Meta:
+        model = IssueRecord
+        fields = ['item', 'item_serial_id', 'item_name', 'user', 'user_serial_id', 'user_name', 'issue_time', 'expected_return']

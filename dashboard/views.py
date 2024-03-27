@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Bucket, Sapien, Item, IssueRecord
-from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer
+from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 
@@ -108,3 +108,11 @@ def sapien_activities(request, serial_id):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def issued_items(request):
+    issued_items = IssueRecord.objects.filter(is_returned=False)
+
+    # Serialize the issued items
+    serializer = IssuedItemSerializer(issued_items, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
