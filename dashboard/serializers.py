@@ -64,3 +64,15 @@ class IssuedItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueRecord
         fields = ['item', 'item_serial_id', 'item_name', 'user', 'user_serial_id', 'user_name', 'issue_time', 'expected_return']
+
+
+class RecentActivitySerializer(serializers.ModelSerializer):
+    item_serial_id = serializers.CharField(source='item.serial_id', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    user_name = serializers.CharField(source='user.name', read_only=True)
+    user_serial_id = serializers.CharField(source='user.serial_id', read_only=True)
+    user_insti_id = serializers.CharField(source='user.insti_id', read_only=True)
+
+    class Meta:
+        model = IssueRecord
+        fields = ['item_serial_id', 'item_name', 'user_name', 'user_serial_id', 'user_insti_id', 'issue_time', 'expected_return', 'return_time', 'is_returned']

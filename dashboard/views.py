@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Bucket, Sapien, Item, IssueRecord
-from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer
+from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer, RecentActivitySerializer
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 
@@ -114,5 +114,15 @@ def issued_items(request):
 
     # Serialize the issued items
     serializer = IssuedItemSerializer(issued_items, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def recent_activities(request):
+    # Query recent IssueRecord objects
+    recent_issue_records = IssueRecord.objects.order_by('-issue_time')[:10]  # Example: Get the latest 10 records
+
+    # Serialize the recent IssueRecord objects
+    serializer = RecentActivitySerializer(recent_issue_records, many=True)
 
     return Response(serializer.data, status=status.HTTP_200_OK)
