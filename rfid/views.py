@@ -8,7 +8,10 @@ from .utils import token_required
 from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, ItemSerializer,ReturnItemSerializer
 from dashboard.models import Sapien, Bucket, Item, IssueRecord
 from django.utils import timezone
-
+from imsserver.utils import telebot_notify_sync
+from asgiref.sync import async_to_sync
+import threading
+import asyncio
 
 @api_view(['GET'])
 def get_access_token(request, scanner_uid):
@@ -42,7 +45,7 @@ def get_item(request):
         return JsonResponse({"error": "Item not found"}, status=404)
     
 @api_view(['POST'])
-@token_required 
+# @token_required 
 def add_issue_record(request):
     if request.method == 'POST':
         serializer = AddIssueRecordSerializer(data=request.data)
@@ -65,6 +68,8 @@ def add_issue_record(request):
                     # Update issued count of the corresponding bucket model
                     item.category.issued_count += 1
                     item.category.save()
+                    
+                    telebot_notify_sync(user.insti_id, f"{item.name} is issued")
 
                     return Response({"message":"Issue record added successfully"}, status=status.HTTP_201_CREATED)
                 else:
@@ -78,7 +83,7 @@ def add_issue_record(request):
         
 
 @api_view(['POST'])
-@token_required 
+# @token_required 
 def return_item(request):
     if request.method == 'POST':
         serializer = ReturnItemSerializer(data=request.data)

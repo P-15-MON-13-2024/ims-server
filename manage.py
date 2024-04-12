@@ -3,13 +3,17 @@
 import os
 import sys
 import threading
-import asyncio
 
+
+def start_telegram_bot():
+    from imsserver.utils import run_telegram_bot
+    run_telegram_bot()
+    
 
 
 def main():
     """Run administrative tasks."""
-    # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -18,16 +22,19 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    thread = None
+    if 'runserver' in sys.argv:
+        thread = threading.Thread(target=start_telegram_bot)
+        thread.start()
+
     execute_from_command_line(sys.argv)
+
+    return thread 
 
 
 if __name__ == '__main__':
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'imsserver.settings')
-    from imsserver.utils import run_telegram_bot
-
-    thread = threading.Thread(target= run_telegram_bot)
-    thread.start()
-    main()
-    thread.join()
+    thread = main()
+    if thread:
+        thread.join()
 
 

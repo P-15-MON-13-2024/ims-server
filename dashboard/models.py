@@ -51,3 +51,9 @@ class IssueRecord(models.Model):
             self.expected_return = datetime.now() + timedelta(days=7)
         super(IssueRecord, self).save(*args, **kwargs)
 
+class TelegramChatID(models.Model):
+    sapien = models.ForeignKey(Sapien, on_delete=models.CASCADE)
+    chat_id = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.sapien}: {self.chat_id}"

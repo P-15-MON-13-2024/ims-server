@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import list_buckets,list_sapiens, list_items,get_bucket_items,item_activities, sapien_activities, issued_items, recent_activities
+from .views import list_buckets,list_sapiens, list_items,get_bucket_items,item_activities, sapien_activities, issued_items, recent_activities, send_telegram_message
 
 urlpatterns = [
     path('get-buckets/', list_buckets, name='list_buckets'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('sapien-activities/<str:serial_id>/', sapien_activities, name='sapien_activities'),
     path('issued-items/',issued_items, name='issued_items'),
     path('recent-activities/', recent_activities, name='recent_activities'),
+    path('send-telegram-msg/', send_telegram_message, name="send_telegram_message"),
 ]
