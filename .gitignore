@@ -4,3 +4,4 @@ venv/
 *.pyc
 *.sqlite3
 */migrations/
+*.env*

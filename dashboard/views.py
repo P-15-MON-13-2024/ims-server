@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from imsserver.utils import telebot_notify_sync
 from .models import Bucket, Sapien, Item, IssueRecord
 from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer, RecentActivitySerializer,SapienCSVSerializer
 from rest_framework import status
@@ -147,6 +148,24 @@ def recent_activities(request):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+def send_telegram_message(request):
+    """
+        {
+            "insti_id":"instiID",
+            "text":"text"
+        }
+    """
+    try:
+        if request.method == 'POST':
+            data = request.data
+            insti_id = data['insti_id']
+            text = data['text']
+            telebot_notify_sync(insti_id,text)
+            return Response({"message":"sent"})
+        return Response({"message":"use request method POST"})
+    except:
+        return Response({"message":"some error occurred"})
 
 @api_view(['POST'])
 def upload_sapiens_csv(request):
