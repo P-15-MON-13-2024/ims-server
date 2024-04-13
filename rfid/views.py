@@ -8,7 +8,7 @@ from .utils import token_required
 from dashboard.serializers import AddIssueRecordSerializer, SapienSerializer, ItemSerializer,ReturnItemSerializer
 from dashboard.models import Sapien, Bucket, Item, IssueRecord
 from django.utils import timezone
-from imsserver.utils import telebot_notify_sync
+from imsserver.utils import telebot_notify_async, telebot_notify_sync
 from asgiref.sync import async_to_sync
 import threading
 import asyncio
@@ -69,7 +69,7 @@ def add_issue_record(request):
                     item.category.issued_count += 1
                     item.category.save()
                     
-                    telebot_notify_sync(user.insti_id, f"{item.name} is issued")
+                    asyncio.run(telebot_notify_async(user.insti_id, f"{item.name} is issued"))
 
                     return Response({"message":"Issue record added successfully"}, status=status.HTTP_201_CREATED)
                 else:
@@ -109,6 +109,9 @@ def return_item(request):
                 # Update issued count of the corresponding bucket model
                 item.category.issued_count -= 1
                 item.category.save()
+
+                asyncio.run(telebot_notify_async(issue_record.user.insti_id, f"{item.name} is returned successfully"))
+
 
                 return Response({"message": "Item returned successfully"}, status=status.HTTP_200_OK)
             except IssueRecord.DoesNotExist:
