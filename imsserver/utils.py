@@ -16,7 +16,7 @@ async def send_welcome(message):
 
 @sync_to_async
 def findTelegramChatID(insti_id):
-    return TelegramChatID.objects.filter(sapien__insti_id=insti_id).first()
+    return TelegramChatID.objects.filter(sapien__insti_id=insti_id).first() or None
 @sync_to_async
 def createTelegramChatID(sapien,chat_id):
     TelegramChatID(sapien=sapien, chat_id=chat_id).save() 
@@ -28,6 +28,8 @@ def findSapien(insti_id):
 
 async def telebot_notify_async(insti_id, message):
     object = await findTelegramChatID(insti_id)
+    if not object:
+        return
     chat_id = object.chat_id
     await bot.send_message(chat_id=int(chat_id), text=message)
 
