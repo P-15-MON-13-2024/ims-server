@@ -76,3 +76,6 @@ class RecentActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueRecord
         fields = ['item_serial_id', 'item_name', 'user_name', 'user_serial_id', 'user_insti_id', 'issue_time', 'expected_return', 'return_time', 'is_returned']
+
+class SapienCSVSerializer(serializers.Serializer):
+    csv_file = serializers.FileField()

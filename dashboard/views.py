@@ -2,9 +2,11 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Bucket, Sapien, Item, IssueRecord
-from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer, RecentActivitySerializer
+from .serializers import BucketSerializer, ItemSerializer, SapienSerializer, BucketItemsSerializer,ItemActivitySerializer,SapienActivitySerializer, IssuedItemSerializer, RecentActivitySerializer,SapienCSVSerializer
 from rest_framework import status
 from rest_framework.exceptions import NotFound
+from django.views.decorators.csrf import csrf_exempt
+import csv
 
 
 
@@ -62,7 +64,6 @@ def list_items(request):
         return Response(items_data, status=status.HTTP_200_OK)
 
 
-
 @api_view(['GET'])
 def get_bucket_items(request, bucket_id):
     try:
@@ -72,10 +73,29 @@ def get_bucket_items(request, bucket_id):
 
     items = Item.objects.filter(category=bucket)  # Ensure correct filtering
 
-    # Pass both bucket and items queryset to the serializer
-    serializer = ItemSerializer(items, many=True)
+    # Initialize a list to hold the serialized items with additional fields
+    serialized_items = []
 
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    # Serialize each item with additional fields
+    for item in items:
+        serialized_item = ItemSerializer(item).data
+
+        # Get the latest issue record for the item
+        latest_issue_record = IssueRecord.objects.filter(item=item, is_returned=False).order_by('-issue_time').first()
+
+        # Add additional fields to the serialized item
+        if latest_issue_record:
+            issued_by = SapienSerializer(latest_issue_record.user).data
+            serialized_item['issued_by'] = issued_by
+            serialized_item['issue_time'] = latest_issue_record.issue_time
+        else:
+            serialized_item['issued_by'] = None
+            serialized_item['issue_time'] = None
+
+        serialized_items.append(serialized_item)
+
+    return Response(serialized_items, status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])
@@ -126,3 +146,61 @@ def recent_activities(request):
     serializer = RecentActivitySerializer(recent_issue_records, many=True)
 
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def upload_sapiens_csv(request):
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+        sapiens_created = 0
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            csv_reader = csv.DictReader(decoded_file)
+            for row in csv_reader:
+                serial_id = row.get('serial_id')
+                insti_id = row.get('insti_id')
+                name = row.get('name')
+                allowed = row.get('allowed')
+                if serial_id and insti_id and name and allowed:
+                    # Create Sapien object
+                    sapien = Sapien.objects.create(
+                        serial_id=serial_id,
+                        insti_id=insti_id,
+                        name=name,
+                        allowed=bool(allowed)
+                    )
+                    sapiens_created += 1
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+        return Response({'message': f'{sapiens_created} Sapien objects created successfully'}, status=201)
+    return Response({'error': 'No file found in the request'}, status=400)
+
+
+@api_view(['POST'])
+def upload_items_csv(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        csv_file = request.FILES['file']
+
+        items_created = []
+        try:
+            # Read the CSV file
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                # Create an Item object for each row in the CSV
+                item = Item.objects.create(
+                    serial_id=row['serial_id'],
+                    name=row['name'],
+                    category=row['category'],
+                    is_available=bool(row['is_available'])  # Convert 'is_available' to boolean
+                )
+                items_created.append(item)
+
+            # Serialize the created items
+            serializer = ItemSerializer(items_created, many=True)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"error": "Please provide a CSV file"}, status=status.HTTP_400_BAD_REQUEST)
