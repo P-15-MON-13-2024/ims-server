@@ -45,7 +45,7 @@ def get_item(request):
         return JsonResponse({"error": "Item not found"}, status=404)
     
 @api_view(['POST'])
-# @token_required 
+@token_required 
 def add_issue_record(request):
     if request.method == 'POST':
         serializer = AddIssueRecordSerializer(data=request.data)
@@ -83,7 +83,7 @@ def add_issue_record(request):
         
 
 @api_view(['POST'])
-# @token_required 
+@token_required 
 def return_item(request):
     if request.method == 'POST':
         serializer = ReturnItemSerializer(data=request.data)
