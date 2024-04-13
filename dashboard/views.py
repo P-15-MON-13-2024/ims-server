@@ -136,7 +136,7 @@ def issued_items(request):
     # Serialize the issued items
     serializer = IssuedItemSerializer(issued_items, many=True)
 
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.data[::-1], status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def recent_activities(request):
